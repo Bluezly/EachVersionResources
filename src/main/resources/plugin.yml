@@ -1,0 +1,16 @@
+name: EachVersionResources
+version: ${version}
+main: net.bluezly.eachversionresources.Eachversionresources
+api-version: '1.20'
+author: Bluezly
+description: Sends different resource packs depending on detected client protocol/version.
+
+commands:
+  pver:
+    description: Show detected protocol/version, reload config, or send the configured pack
+    usage: /pver [reload|send]
+
+permissions:
+  eachversionresources.reload:
+    description: Allows reloading the plugin config and versions registry
+    default: op
