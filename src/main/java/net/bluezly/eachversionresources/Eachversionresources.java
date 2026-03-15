@@ -261,68 +261,92 @@ public final class Eachversionresources extends JavaPlugin implements Listener {
         }
     }
 
-    private void injectServerChannels() throws Exception{
-
+    private void injectServerChannels() throws Exception {
         Object craftServer = Bukkit.getServer();
         Method getServerMethod = craftServer.getClass().getMethod("getServer");
         Object minecraftServer = getServerMethod.invoke(craftServer);
 
+        log("MinecraftServer class: " + minecraftServer.getClass().getName());
+
         Object serverConnection = findServerConnection(minecraftServer);
-        if(serverConnection==null) throw new IllegalStateException("ServerConnection not found");
+        if (serverConnection == null) {
+            throw new IllegalStateException("ServerConnection not found in " + minecraftServer.getClass().getName());
+        }
+
+        log("Server connection class: " + serverConnection.getClass().getName());
 
         List<ChannelFuture> futures = findChannelFutureList(serverConnection);
-        if(futures==null) throw new IllegalStateException("Channel futures not found");
+        if (futures == null || futures.isEmpty()) {
+            throw new IllegalStateException("ChannelFuture list not found in " + serverConnection.getClass().getName());
+        }
 
-        for(ChannelFuture future:futures){
-
+        for (ChannelFuture future : futures) {
             Channel serverChannel = future.channel();
 
-            if(serverChannel.pipeline().get("evr_server_detector")==null){
-
-                serverChannel.pipeline().addFirst("evr_server_detector",new ChannelInboundHandlerAdapter(){
-
-                    public void channelRead(ChannelHandlerContext ctx,Object msg) throws Exception{
-
+            if (serverChannel.pipeline().get("evr_server_detector") == null) {
+                serverChannel.pipeline().addFirst("evr_server_detector", new ChannelInboundHandlerAdapter() {
+                    @Override
+                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                         Channel child = extractChannel(msg);
 
-                        if(child!=null && child.pipeline().get("evr_client_detector")==null){
-
-                            child.pipeline().addFirst("evr_client_detector",new ChannelInboundHandlerAdapter(){
-
-                                public void channelRead(ChannelHandlerContext clientCtx,Object packet) throws Exception{
-                                    tryCaptureHandshake(clientCtx.channel(),packet);
-                                    super.channelRead(clientCtx,packet);
+                        if (child != null && child.pipeline().get("evr_client_detector") == null) {
+                            child.pipeline().addFirst("evr_client_detector", new ChannelInboundHandlerAdapter() {
+                                @Override
+                                public void channelRead(ChannelHandlerContext clientCtx, Object packet) throws Exception {
+                                    tryCaptureHandshake(clientCtx.channel(), packet);
+                                    super.channelRead(clientCtx, packet);
                                 }
-
                             });
                         }
 
-                        super.channelRead(ctx,msg);
+                        super.channelRead(ctx, msg);
                     }
-
                 });
             }
         }
     }
 
-    private Object findServerConnection(Object minecraftServer) throws Exception{
-
+    private Object findServerConnection(Object minecraftServer) throws Exception {
         Class<?> type = minecraftServer.getClass();
 
-        while(type!=null){
-
-            for(Field field:type.getDeclaredFields()){
-
+        while (type != null) {
+            for (Field field : type.getDeclaredFields()) {
                 field.setAccessible(true);
-
                 Object value = field.get(minecraftServer);
 
-                if(value!=null && value.getClass().getSimpleName().equals("ServerConnection")){
+                if (value == null) {
+                    continue;
+                }
+
+                String name = value.getClass().getSimpleName();
+
+                if (name.equals("ServerConnection")
+                        || name.equals("ServerConnectionListener")
+                        || name.contains("ServerConnection")
+                        || name.contains("ConnectionListener")) {
                     return value;
                 }
             }
-
             type = type.getSuperclass();
+        }
+
+        for (Method method : minecraftServer.getClass().getDeclaredMethods()) {
+            if (method.getParameterCount() != 0) {
+                continue;
+            }
+
+            String returnName = method.getReturnType().getSimpleName();
+
+            if (returnName.equals("ServerConnection")
+                    || returnName.equals("ServerConnectionListener")
+                    || returnName.contains("ServerConnection")
+                    || returnName.contains("ConnectionListener")) {
+                method.setAccessible(true);
+                Object value = method.invoke(minecraftServer);
+                if (value != null) {
+                    return value;
+                }
+            }
         }
 
         return null;
