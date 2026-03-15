@@ -351,45 +351,65 @@ public final class Eachversionresources extends JavaPlugin implements Listener {
         return null;
     }
 
-    private void tryCaptureHandshake(Channel channel,Object packet){
+    private void tryCaptureHandshake(Channel channel, Object packet) {
+        try {
+            String simpleName = packet.getClass().getSimpleName().toLowerCase(Locale.ROOT);
+            String fullName = packet.getClass().getName().toLowerCase(Locale.ROOT);
 
-        try{
+            boolean looksLikeHandshake =
+                    simpleName.contains("handshake") ||
+                            fullName.contains("handshake") ||
+                            simpleName.contains("intention") ||
+                            fullName.contains("intention");
 
-            String name = packet.getClass().getName().toLowerCase();
-
-            if(!name.contains("handshake")) return;
-
-            Integer protocol = extractProtocol(packet);
-
-            if(protocol!=null){
-
-                String key = normalize(channel.remoteAddress());
-
-                addressProtocolMap.put(key,protocol);
+            if (!looksLikeHandshake) {
+                return;
             }
 
-        }catch(Throwable ignored){}
+            Integer protocol = extractProtocol(packet);
+            if (protocol != null) {
+                String key = normalize(channel.remoteAddress());
+                addressProtocolMap.put(key, protocol);
+                log("Captured protocol " + protocol + " from " + key + " using packet " + packet.getClass().getName());
+            } else {
+                log("Handshake-like packet found but protocol could not be extracted: " + packet.getClass().getName());
+            }
+        } catch (Throwable t) {
+            log("Handshake capture error: " + t.getMessage());
+        }
     }
 
-    private Integer extractProtocol(Object packet){
-
-        try{
-
-            for(Field field:packet.getClass().getDeclaredFields()){
-
+    private Integer extractProtocol(Object packet) {
+        try {
+            for (Field field : packet.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
 
-                if(field.getType()==int.class){
+                Class<?> type = field.getType();
 
-                    int value = field.getInt(packet);
-
-                    if(value>0 && value<10000){
-                        return value;
+                if (type == int.class || type == Integer.class) {
+                    Object value = field.get(packet);
+                    if (value instanceof Integer i && i > 0 && i < 10000) {
+                        return i;
                     }
                 }
             }
+        } catch (Throwable ignored) {
+        }
 
-        }catch(Throwable ignored){}
+        try {
+            for (Method method : packet.getClass().getDeclaredMethods()) {
+                method.setAccessible(true);
+
+                if (method.getParameterCount() == 0 &&
+                        (method.getReturnType() == int.class || method.getReturnType() == Integer.class)) {
+                    Object value = method.invoke(packet);
+                    if (value instanceof Integer i && i > 0 && i < 10000) {
+                        return i;
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
 
         return null;
     }
@@ -430,26 +450,28 @@ public final class Eachversionresources extends JavaPlugin implements Listener {
         if(debug) getLogger().info(message);
     }
 
-    public boolean onCommand(CommandSender sender,Command command,String label,String[] args){
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!command.getName().equalsIgnoreCase("pver")) return false;
 
-        if(!command.getName().equalsIgnoreCase("pver")) return false;
-
-        if(args.length==1 && args[0].equalsIgnoreCase("reload")){
-
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             reloadLocalSettings();
             loadVersionsRegistry();
-
             sender.sendMessage("EachVersionResources reloaded");
-
             return true;
         }
 
-        if(sender instanceof Player player){
-
+        if (sender instanceof Player player) {
             Integer protocol = playerProtocolMap.get(player.getUniqueId());
 
-            sender.sendMessage("Protocol: "+protocol);
-            sender.sendMessage("Version: "+resolveVersionName(protocol==null?0:protocol));
+            if (protocol == null) {
+                sender.sendMessage("Protocol: not detected");
+                sender.sendMessage("Version: not detected");
+                return true;
+            }
+
+            sender.sendMessage("Protocol: " + protocol);
+            sender.sendMessage("Version: " + resolveVersionName(protocol));
+            return true;
         }
 
         return true;
