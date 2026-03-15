@@ -1,16 +1,20 @@
 name: EachVersionResources
-version: ${version}
+version: 1.0
 main: net.bluezly.eachversionresources.Eachversionresources
-api-version: '1.20'
+api-version: "1.20"
+description: Sends different resource packs based on the player's Minecraft version.
 author: Bluezly
-description: Sends different resource packs depending on detected client protocol/version.
 
 commands:
   pver:
-    description: Show detected protocol/version, reload config, or send the configured pack
-    usage: /pver [reload|send]
+    description: Shows your detected protocol and version.
+    usage: /pver [reload|debug]
+    permission: eachversionresources.pver
 
 permissions:
+  eachversionresources.pver:
+    description: Allows use of /pver command.
+    default: op
   eachversionresources.reload:
-    description: Allows reloading the plugin config and versions registry
+    description: Allows reloading the plugin via /pver reload.
     default: op
