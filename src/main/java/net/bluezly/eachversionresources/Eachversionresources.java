@@ -380,26 +380,23 @@ public final class Eachversionresources extends JavaPlugin implements Listener {
             String simpleName = packet.getClass().getSimpleName().toLowerCase(Locale.ROOT);
             String fullName = packet.getClass().getName().toLowerCase(Locale.ROOT);
 
-            boolean looksLikeHandshake =
-                    simpleName.contains("handshake") ||
-                            fullName.contains("handshake") ||
-                            simpleName.contains("intention") ||
-                            fullName.contains("intention");
+            if (simpleName.contains("intention") || fullName.contains("intention")
+                    || simpleName.contains("handshake") || fullName.contains("handshake")) {
 
-            if (!looksLikeHandshake) {
-                return;
-            }
+                log("Detected login packet class: " + packet.getClass().getName());
 
-            Integer protocol = extractProtocol(packet);
-            if (protocol != null) {
-                String key = normalize(channel.remoteAddress());
-                addressProtocolMap.put(key, protocol);
-                log("Captured protocol " + protocol + " from " + key + " using packet " + packet.getClass().getName());
-            } else {
-                log("Handshake-like packet found but protocol could not be extracted: " + packet.getClass().getName());
+                Integer protocol = extractProtocol(packet);
+
+                if (protocol != null) {
+                    String key = normalize(channel.remoteAddress());
+                    addressProtocolMap.put(key, protocol);
+                    log("Captured protocol " + protocol + " from " + key);
+                } else {
+                    log("Could not extract protocol from " + packet.getClass().getName());
+                }
             }
         } catch (Throwable t) {
-            log("Handshake capture error: " + t.getMessage());
+            log("Handshake capture failed: " + t.getMessage());
         }
     }
 
