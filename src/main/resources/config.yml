@@ -4,99 +4,68 @@ refresh-hours: 6
 
 debug: true
 
+send-pack-on-join: true
+
 fallback:
   enabled: true
-
-send-pack-on-join: true
 
 default-pack:
   enabled: false
   url: ""
   sha1: ""
   required: false
-  prompt: "Server resource pack"
 
 packs:
   "1.20-1.20.1":
-    enabled: true
-    url: "https://example.com/packs/1.20-1.20.1.zip"
-    sha1: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.20-1.20.1"
 
   "1.20.2":
-    enabled: true
-    url: "https://example.com/packs/1.20.2.zip"
-    sha1: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.20.2"
 
   "1.20.3-1.20.4":
-    enabled: true
-    url: "https://example.com/packs/1.20.3-1.20.4.zip"
-    sha1: "cccccccccccccccccccccccccccccccccccccccc"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.20.3-1.20.4"
 
   "1.20.5-1.20.6":
-    enabled: true
-    url: "https://example.com/packs/1.20.5-1.20.6.zip"
-    sha1: "dddddddddddddddddddddddddddddddddddddddd"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.20.5-1.20.6"
 
   "1.21-1.21.1":
-    enabled: true
-    url: "https://example.com/packs/1.21-1.21.1.zip"
-    sha1: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.21-1.21.1"
 
   "1.21.2-1.21.3":
-    enabled: true
-    url: "https://example.com/packs/1.21.2-1.21.3.zip"
-    sha1: "ffffffffffffffffffffffffffffffffffffffff"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.21.2-1.21.3"
 
   "1.21.4":
-    enabled: true
-    url: "https://example.com/packs/1.21.4.zip"
-    sha1: "1111111111111111111111111111111111111111"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.21.4"
 
   "1.21.5":
-    enabled: true
-    url: "https://example.com/packs/1.21.5.zip"
-    sha1: "2222222222222222222222222222222222222222"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.21.5"
 
   "1.21.6":
-    enabled: true
-    url: "https://example.com/packs/1.21.6.zip"
-    sha1: "3333333333333333333333333333333333333333"
+    enabled: false
+    url: ""
+    sha1: ""
     required: false
-    prompt: "Pack for 1.21.6"
-
-  "1.21.7-1.21.8":
-    enabled: true
-    url: "https://example.com/packs/1.21.7-1.21.8.zip"
-    sha1: "4444444444444444444444444444444444444444"
-    required: false
-    prompt: "Pack for 1.21.7-1.21.8"
-
-  "1.21.9-1.21.10":
-    enabled: true
-    url: "https://example.com/packs/1.21.9-1.21.10.zip"
-    sha1: "5555555555555555555555555555555555555555"
-    required: false
-    prompt: "Pack for 1.21.9-1.21.10"
-
-  "1.21.11":
-    enabled: true
-    url: "https://example.com/packs/1.21.11.zip"
-    sha1: "6666666666666666666666666666666666666666"
-    required: false
-    prompt: "Pack for 1.21.11"
